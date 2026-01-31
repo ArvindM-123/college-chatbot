@@ -1,0 +1,259 @@
+{
+  "intents": [
+
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening"],
+      "responses": ["Hello! 👋", "Hi there!", "Welcome to our college chatbot 😊"]
+    },
+
+    {
+      "tag": "about_bot",
+      "patterns": [
+        "tell me about yourself",
+        "who are you",
+        "what can you do",
+        "what is this chatbot",
+        "about you"
+      ],
+      "responses": [
+        "I’m a college information chatbot 🤖. I help students with details about departments, exams, placements, and facilities.",
+        "I’m here to answer your college-related questions anytime 😊"
+      ]
+    },
+
+    {
+      "tag": "college_info",
+      "patterns": [
+        "What is your college name?",
+        "Which college is this?",
+        "Tell me about your college",
+        "About the college"
+      ],
+      "responses": [
+        "This is an engineering college offering BE and BTech programs with quality education.",
+        "Our college focuses on academic excellence and student development."
+      ]
+    },
+
+    {
+      "tag": "college_details",
+      "patterns": [
+        "college details",
+        "tell full details about college",
+        "college overview",
+        "about institution"
+      ],
+      "responses": [
+        "The college is affiliated to a recognized university and approved by AICTE.",
+        "It provides quality technical education with modern infrastructure and experienced faculty."
+      ]
+    },
+
+    {
+      "tag": "departments",
+      "patterns": [
+        "departments",
+        "how many departments are there",
+        "what are the departments",
+        "branches available",
+        "courses offered"
+      ],
+      "responses": [
+        "We have CSE, ECE, EEE, Mechanical, Civil, and IT departments.",
+        "The college offers CSE, ECE, EEE, Mechanical, Civil, and IT branches."
+      ]
+    },
+
+    {
+      "tag": "syllabus",
+      "patterns": [
+        "syllabus",
+        "course syllabus",
+        "subjects",
+        "subjects list"
+      ],
+      "responses": [
+        "The syllabus is designed by the university and updated periodically.",
+        "You can check the syllabus on the university or college website."
+      ]
+    },
+
+    {
+      "tag": "semester",
+      "patterns": [
+        "semester",
+        "how many semesters are there",
+        "semester system",
+        "odd semester",
+        "even semester"
+      ],
+      "responses": [
+        "The course follows a semester system with 8 semesters.",
+        "Odd semesters are 1, 3, 5, 7 and even semesters are 2, 4, 6, 8."
+      ]
+    },
+
+    {
+      "tag": "exam",
+      "patterns": [
+        "exam",
+        "semester exams",
+        "internal exam",
+        "external exam",
+        "end semester exam"
+      ],
+      "responses": [
+        "The college conducts internal assessments and end-semester examinations.",
+        "Each semester has internal tests, assignments, and a final university exam."
+      ]
+    },
+
+    {
+      "tag": "exam_schedule",
+      "patterns": [
+        "exam schedule",
+        "when are exams",
+        "exam timetable",
+        "semester exam date"
+      ],
+      "responses": [
+        "Exam schedules are announced by the university before the semester exams.",
+        "Students can check the exam timetable on the college notice board or website."
+      ]
+    },
+
+    {
+      "tag": "attendance",
+      "patterns": [
+        "attendance",
+        "attendance percentage",
+        "minimum attendance",
+        "attendance rules"
+      ],
+      "responses": [
+        "Students must maintain a minimum of 75% attendance to appear for exams.",
+        "Attendance is strictly monitored as per university rules."
+      ]
+    },
+
+    {
+      "tag": "faculty",
+      "patterns": [
+        "faculty",
+        "teachers",
+        "professors",
+        "staff details"
+      ],
+      "responses": [
+        "The college has well-qualified and experienced faculty members.",
+        "Faculty members guide students both academically and professionally."
+      ]
+    },
+
+    {
+      "tag": "placement",
+      "patterns": [
+        "placement",
+        "placement training",
+        "is placement available",
+        "campus placement"
+      ],
+      "responses": [
+        "Placement and aptitude training is provided in the 3rd year.",
+        "The placement cell supports students with training and campus interviews."
+      ]
+    },
+
+    {
+      "tag": "scholarship",
+      "patterns": [
+        "scholarship",
+        "financial aid",
+        "fee concession"
+      ],
+      "responses": [
+        "Scholarships are available for eligible students as per government norms.",
+        "Students can apply for scholarships through official portals."
+      ]
+    },
+
+    {
+      "tag": "facilities",
+      "patterns": [
+        "facilities",
+        "college facilities",
+        "infrastructure",
+        "labs and library"
+      ],
+      "responses": [
+        "The college has modern labs, library, hostel, sports, and Wi-Fi facilities.",
+        "Students have access to labs, library, hostels, and recreational facilities."
+      ]
+    },
+
+    {
+      "tag": "transport",
+      "patterns": [
+        "transport",
+        "college bus",
+        "bus facility"
+      ],
+      "responses": [
+        "College bus facilities are available from major locations.",
+        "Students can use college transport for daily commuting."
+      ]
+    },
+
+    {
+      "tag": "hostel",
+      "patterns": [
+        "hostel",
+        "hostel facilities",
+        "boys hostel",
+        "girls hostel"
+      ],
+      "responses": [
+        "Hostel facilities are available for both boys and girls.",
+        "The hostels provide safe and comfortable accommodation."
+      ]
+    },
+
+    {
+      "tag": "library",
+      "patterns": [
+        "library",
+        "college library",
+        "digital library",
+        "books available"
+      ],
+      "responses": [
+        "The library contains textbooks, reference books, journals, and digital resources.",
+        "Students can access both physical and digital library resources."
+      ]
+    },
+
+    {
+      "tag": "thanks",
+      "patterns": ["Thanks", "Thank you", "Thanks a lot"],
+      "responses": ["You’re welcome! 😊", "Happy to help!"]
+    },
+
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "Goodbye", "See you"],
+      "responses": ["Bye! 👋 Take care 😊", "See you again!"]
+    },
+
+    {
+      "tag": "fallback",
+      "patterns": [],
+      "responses": [
+        "Sorry 😅 I didn’t understand that. Please ask something about the college.",
+        "Hmm 🤔 I’m not sure. Can you rephrase your question?",
+        "I can help with departments, exams, placements, and facilities 😊"
+      ]
+    }
+
+  ]
+}
