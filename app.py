@@ -1,5 +1,8 @@
-# ================== NLTK SETUP (RENDER SAFE) ==================
+# ================== DISABLE GPU ==================
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+# ================== NLTK SETUP ==================
 import nltk
 
 NLTK_DATA_DIR = "/tmp/nltk_data"
@@ -9,11 +12,12 @@ nltk.download("punkt", download_dir=NLTK_DATA_DIR)
 nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
 
 # ================== IMPORTS ==================
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import numpy as np
 import pickle
 import json
 import random
+import traceback
 from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import load_model
 
@@ -83,17 +87,24 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/get", methods=["POST"])
-def chatbot_response():
-    msg = request.form.get("msg")
+@app.route("/chat", methods=["POST"])
+def chat():
+    try:
+        data = request.get_json()
+        msg = data.get("message")
 
-    if not msg:
-        return "Please type a message 🙂"
+        if not msg:
+            return jsonify({"reply": "Please type a message 🙂"})
 
-    ints = predict_class(msg)
-    response = get_response(ints)
+        ints = predict_class(msg)
+        response = get_response(ints)
 
-    return response   # ✅ MUST be plain text
+        return jsonify({"reply": response})
+
+    except Exception:
+        print("❌ CHAT ERROR")
+        traceback.print_exc()
+        return jsonify({"reply": "Server error occurred"}), 500
 
 # ================== RUN ==================
 if __name__ == "__main__":
