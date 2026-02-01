@@ -99,20 +99,21 @@
     </div>
 
     <form class="chat-input" id="chat-form">
-        <input type="text" id="user-input" placeholder="Type your message..." required>
+        <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required>
         <button type="submit">Send</button>
     </form>
 </div>
 
 <script>
-document.getElementById("chat-form").addEventListener("submit", async function(e) {
-    e.preventDefault(); // 🔥 prevents page reload
+const chatForm = document.getElementById("chat-form");
+const input = document.getElementById("user-input");
+const chatBox = document.getElementById("chat-box");
 
-    const input = document.getElementById("user-input");
+chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
     const message = input.value.trim();
-    if (message === "") return;
-
-    const chatBox = document.getElementById("chat-box");
+    if (!message) return;
 
     // show user message
     chatBox.innerHTML += `<div class="user-message">${message}</div>`;
@@ -125,16 +126,21 @@ document.getElementById("chat-form").addEventListener("submit", async function(e
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message })
         });
+
+        if (!response.ok) {
+            throw new Error("Server error");
+        }
 
         const data = await response.json();
 
         chatBox.innerHTML += `<div class="bot-message">${data.reply}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
-    } catch (error) {
+    } catch (err) {
         chatBox.innerHTML += `<div class="bot-message">⚠️ Server error. Try again.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
 });
 </script>
