@@ -20,7 +20,7 @@ import random
 import traceback
 from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import load_model
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ================== APP SETUP ==================
 app = Flask(__name__, template_folder="templates")
 lemmatizer = WordNetLemmatizer()
