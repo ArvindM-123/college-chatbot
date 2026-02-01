@@ -9,7 +9,7 @@ nltk.download("punkt", download_dir=NLTK_DATA_DIR)
 nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
 
 # ================== IMPORTS ==================
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import numpy as np
 import pickle
 import json
@@ -86,9 +86,14 @@ def home():
 @app.route("/get", methods=["POST"])
 def chatbot_response():
     msg = request.form.get("msg")
+
+    if not msg:
+        return "Please type a message 🙂"
+
     ints = predict_class(msg)
     response = get_response(ints)
-    return jsonify(response)
+
+    return response   # ✅ MUST be plain text
 
 # ================== RUN ==================
 if __name__ == "__main__":
