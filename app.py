@@ -26,17 +26,24 @@ app = Flask(__name__, template_folder="templates")
 lemmatizer = WordNetLemmatizer()
 
 # ================== LOAD FILES ==================
-model = load_model("model.h5")
-words = pickle.load(open("words.pkl", "rb"))
-classes = pickle.load(open("classes.pkl", "rb"))
+model = load_model(os.path.join(BASE_DIR, "model.h5"))
+words = pickle.load(open(os.path.join(BASE_DIR, "words.pkl"), "rb"))
+classes = pickle.load(open(os.path.join(BASE_DIR, "classes.pkl"), "rb"))
 
-with open("intent.json", encoding="utf-8") as f:
+with open(os.path.join(BASE_DIR, "intent.json"), encoding="utf-8") as f:
     intents = json.load(f)
+
 
 # ================== HELPER FUNCTIONS ==================
 def clean_up_sentence(sentence):
-    sentence_words = nltk.word_tokenize(sentence)
+    try:
+        sentence_words = nltk.word_tokenize(sentence)
+    except LookupError:
+        nltk.download("punkt", download_dir=NLTK_DATA_DIR)
+        sentence_words = nltk.word_tokenize(sentence)
+
     return [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+
 
 
 def bag_of_words(sentence):
@@ -86,25 +93,22 @@ def get_response(intents_list):
 def home():
     return render_template("index.html")
 
-
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
         data = request.get_json()
         msg = data.get("message")
 
-        if not msg:
-            return jsonify({"reply": "Please type a message 🙂"})
-
         ints = predict_class(msg)
-        response = get_response(ints)
+        res = get_response(ints)
 
-        return jsonify({"reply": response})
+        return jsonify({"reply": res})
 
-    except Exception:
-        print("❌ CHAT ERROR")
-        traceback.print_exc()
-        return jsonify({"reply": "Server error occurred"}), 500
+    except Exception as e:
+        print("❌ CHAT ERROR:")
+        traceback.print_exc()   # 🔥 THIS IS KEY
+        return jsonify({"reply": "Backend error occurred"}), 500
+
 
 # ================== RUN ==================
 if __name__ == "__main__":
