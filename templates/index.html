@@ -159,16 +159,18 @@
 
         const formData = new FormData();
         formData.append("msg", msg);
+fetch("/get", {
+    method: "POST",
+    body: formData
+})
+.then(response => response.text())   // ✅ FIX
+.then(data => {
+    addBotMessage(data);
+})
+.catch(() => {
+    addBotMessage("Server error. Try again.");
+});
 
-        fetch("/get", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            typing.style.display = "none";
-            addMessage(data, "bot");
-        })
         .catch(() => {
             typing.style.display = "none";
             addMessage("⚠️ Server error. Try again.", "bot");
