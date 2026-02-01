@@ -1,188 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>College Chatbot</title>
-
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            font-family: "Segoe UI", sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chat-container {
-            width: 420px;
-            height: 520px;
-            background: #1e293b;
-            border-radius: 18px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            padding: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chat-box {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-        }
-
-        .message {
-            max-width: 75%;
-            padding: 10px 14px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            font-size: 14px;
-            animation: fadeIn 0.3s ease-in;
-            line-height: 1.4;
-        }
-
-        .user {
-            background: #38bdf8;
-            color: #020617;
-            margin-left: auto;
-            border-bottom-right-radius: 2px;
-        }
-
-        .bot {
-            background: #334155;
-            color: #e2e8f0;
-            margin-right: auto;
-            border-bottom-left-radius: 2px;
-        }
-
-        #typing {
-            font-size: 13px;
-            color: #94a3b8;
-            margin: 5px;
-            display: none;
-        }
-
-        .chat-input {
-            display: flex;
-            padding: 12px;
-            background: #0f172a;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 10px;
-            border: none;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .chat-input button {
-            margin-left: 10px;
-            padding: 10px 16px;
-            background: #22c55e;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .chat-input button:hover {
-            background: #16a34a;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="chat-container">
-    <div class="chat-header">
-        🤖 College Chatbot
-    </div>
-
-    <div class="chat-box" id="chat-box">
-        <div class="message bot">Hi 👋 Ask me anything about the college!</div>
-    </div>
-
-    <div id="typing">Bot is typing...</div>
-
-    <div class="chat-input">
-        <input type="text" id="user-input" placeholder="Type your message..." />
-        <button onclick="sendMessage()">Send</button>
-    </div>
-</div>
-
+<form id="chat-form">
+    <input
+        type="text"
+        id="textInput"
+        name="msg"
+        placeholder="Type your message..."
+        autocomplete="off"
+        required
+    />
+    <button type="submit">Send</button>
+</form>
 <script>
-    const chatBox = document.getElementById("chat-box");
-    const userInput = document.getElementById("user-input");
-    const typing = document.getElementById("typing");
+const form = document.getElementById("chat-form");
+const input = document.getElementById("textInput");
 
-    function addMessage(text, sender) {
-        const msg = document.createElement("div");
-        msg.classList.add("message", sender);
-        msg.innerText = text;
-        chatBox.appendChild(msg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+form.addEventListener("submit", function (e) {
+    e.preventDefault(); // 🔥 THIS FIXES IT
 
-    function sendMessage() {
-        const msg = userInput.value.trim();
-        if (msg === "") return;
+    const msg = input.value.trim();
+    if (msg === "") return;
 
-        addMessage(msg, "user");
-        userInput.value = "";
+    addUserMessage(msg);
+    input.value = "";
 
-        typing.style.display = "block";
+    const formData = new FormData();
+    formData.append("msg", msg);
 
-        const formData = new FormData();
-        formData.append("msg", msg);
-fetch("/get", {
-    method: "POST",
-    body: formData
-})
-.then(response => response.text())   // ✅ FIX
-.then(data => {
-    addBotMessage(data);
-})
-.catch(() => {
-    addBotMessage("Server error. Try again.");
+    fetch("/get", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+        addBotMessage(data);
+    })
+    .catch(() => {
+        addBotMessage("Server error. Try again.");
+    });
 });
 
-        .catch(() => {
-            typing.style.display = "none";
-            addMessage("⚠️ Server error. Try again.", "bot");
-        });
-    }
+function addUserMessage(msg) {
+    console.log("User:", msg);
+}
 
-    userInput.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-            sendMessage();
-        }
-    });
+function addBotMessage(msg) {
+    console.log("Bot:", msg);
+}
 </script>
-
-</body>
-</html>
