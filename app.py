@@ -1,4 +1,5 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import json
 import random
 import pickle
@@ -106,17 +107,22 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data or "message" not in data:
-        return jsonify({"reply": "Invalid request"}), 400
+        if not data or "message" not in data:
+            return jsonify({"reply": "Invalid request"}), 400
 
-    user_message = data["message"]
+        user_message = data["message"]
 
-    intents_list = predict_class(user_message)
-    response = get_response(intents_list, intents)
+        intents_list = predict_class(user_message)
+        response = get_response(intents_list, intents)
 
-    return jsonify({"reply": response})
+        return jsonify({"reply": response})
+
+    except Exception as e:
+        print(f"Error: {e}", flush=True)
+        return jsonify({"reply": f"Internal Error: {str(e)}"}), 200
 
 # -----------------------------
 # Run app
