@@ -1,34 +1,33 @@
-# ================== DISABLE GPU (RENDER SAFE) ==================
+# ================== DISABLE GPU ==================
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-# ================== BASE DIR ==================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# ================== IMPORTS ==================
+import nltk
+import json
+import pickle
+import random
+import traceback
+import numpy as np
+from flask import Flask, render_template, request, jsonify
+from nltk.stem import WordNetLemmatizer
+from tensorflow.keras.models import load_model
 
 # ================== NLTK SETUP ==================
-import nltk
-
 NLTK_DATA_DIR = "/tmp/nltk_data"
 nltk.data.path.append(NLTK_DATA_DIR)
 
 nltk.download("punkt", download_dir=NLTK_DATA_DIR)
 nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
 
-# ================== IMPORTS ==================
-from flask import Flask, render_template, request, jsonify
-import numpy as np
-import pickle
-import json
-import random
-import traceback
-from nltk.stem import WordNetLemmatizer
-from tensorflow.keras.models import load_model
+# ================== PATH SETUP ==================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ================== APP SETUP ==================
 app = Flask(__name__, template_folder="templates")
 lemmatizer = WordNetLemmatizer()
 
-# ================== LOAD FILES (SAFE PATHS) ==================
+# ================== LOAD FILES ==================
 model = load_model(os.path.join(BASE_DIR, "model.h5"))
 words = pickle.load(open(os.path.join(BASE_DIR, "words.pkl"), "rb"))
 classes = pickle.load(open(os.path.join(BASE_DIR, "classes.pkl"), "rb"))
@@ -36,53 +35,37 @@ classes = pickle.load(open(os.path.join(BASE_DIR, "classes.pkl"), "rb"))
 with open(os.path.join(BASE_DIR, "intent.json"), encoding="utf-8") as f:
     intents = json.load(f)
 
-# ================== HELPER FUNCTIONS ==================
+# ================== NLP FUNCTIONS ==================
 def clean_up_sentence(sentence):
-    try:
-        sentence_words = nltk.word_tokenize(sentence)
-    except LookupError:
-        nltk.download("punkt", download_dir=NLTK_DATA_DIR)
-        sentence_words = nltk.word_tokenize(sentence)
-
-    return [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
-
+    tokens = nltk.word_tokenize(sentence)
+    return [lemmatizer.lemmatize(w.lower()) for w in tokens]
 
 def bag_of_words(sentence):
     sentence_words = clean_up_sentence(sentence)
     bag = [0] * len(words)
-
     for s in sentence_words:
         for i, w in enumerate(words):
             if w == s:
                 bag[i] = 1
-
     return np.array(bag)
-
 
 def predict_class(sentence):
     bow = bag_of_words(sentence)
-    res = model.predict(np.array([bow]), verbose=0)[0]
+    result = model.predict(np.array([bow]), verbose=0)[0]
 
-    max_prob = float(np.max(res))
-    max_index = int(np.argmax(res))
+    max_prob = float(np.max(result))
+    max_index = int(np.argmax(result))
 
-    CONFIDENCE_THRESHOLD = 0.75
-
-    if max_prob < CONFIDENCE_THRESHOLD:
+    if max_prob < 0.75:
         return []
 
-    return [{
-        "intent": classes[max_index],
-        "probability": max_prob
-    }]
-
+    return [{"intent": classes[max_index], "probability": max_prob}]
 
 def get_response(intents_list):
     if not intents_list:
         return "Sorry 😅 I don’t understand that. Try asking about the college."
 
     tag = intents_list[0]["intent"]
-
     for intent in intents["intents"]:
         if intent["tag"] == tag:
             return random.choice(intent["responses"])
@@ -94,28 +77,28 @@ def get_response(intents_list):
 def home():
     return render_template("index.html")
 
-
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        data = request.get_json(force=True)
-        msg = data.get("message", "").strip()
+        data = request.get_json(force=True, silent=True)
 
-        if not msg:
+        if not data or "message" not in data:
             return jsonify({"reply": "Please type a message 🙂"})
 
-        print("📩 User message:", msg)  # Debug log (safe)
+        msg = data["message"].strip()
+
+        if msg == "":
+            return jsonify({"reply": "Please type a message 🙂"})
 
         ints = predict_class(msg)
-        res = get_response(ints)
+        reply = get_response(ints)
 
-        return jsonify({"reply": res})
+        return jsonify({"reply": reply})
 
     except Exception:
-        print("❌ CHAT ERROR:")
+        print("❌ CHAT ERROR")
         traceback.print_exc()
-        return jsonify({"reply": "Backend error occurred"}), 500
-
+        return jsonify({"reply": "Server error. Please try again."}), 500
 
 # ================== RUN ==================
 if __name__ == "__main__":
