@@ -6,7 +6,9 @@ import pickle
 import numpy as np
 
 from flask import Flask, request, jsonify, render_template
-from tensorflow.keras.models import load_model
+
+# REMOVED: tensorflow
+# from tensorflow.keras.models import load_model
 
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -22,14 +24,12 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # -----------------------------
-# NLTK setup (IMPORTANT FOR DEPLOYMENT)
+# NLTK setup
 # -----------------------------
 NLTK_DATA_DIR = os.path.join(BASE_DIR, "nltk_data")
 os.makedirs(NLTK_DATA_DIR, exist_ok=True)
-
 nltk.data.path.append(NLTK_DATA_DIR)
 
-# Download only once at startup
 nltk.download("punkt", download_dir=NLTK_DATA_DIR)
 nltk.download("punkt_tab", download_dir=NLTK_DATA_DIR)
 nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
@@ -37,12 +37,46 @@ nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
 lemmatizer = WordNetLemmatizer()
 
 # -----------------------------
+# 🚀 NUMPY MODEL IMPLEMENTATION
+# -----------------------------
+class NumpyModel:
+    def __init__(self, weights_path):
+        print(f"Loading weights from {weights_path}...")
+        data = np.load(weights_path)
+        self.w1, self.b1 = data['w1'], data['b1']
+        self.w2, self.b2 = data['w2'], data['b2']
+        self.w3, self.b3 = data['w3'], data['b3']
+    
+    def relu(self, x):
+        return np.maximum(0, x)
+    
+    def softmax(self, x):
+        e_x = np.exp(x - np.max(x)) # Stability fix
+        return e_x / e_x.sum(axis=0)
+
+    def predict(self, x):
+        # Forward pass (Dense -> Relu -> Dropout ignored -> Dense -> Relu -> Dense -> Softmax)
+        # Layer 1
+        h1 = np.dot(x, self.w1) + self.b1
+        h1 = self.relu(h1)
+        
+        # Layer 2
+        h2 = np.dot(h1, self.w2) + self.b2
+        h2 = self.relu(h2)
+        
+        # Layer 3 (Output)
+        out = np.dot(h2, self.w3) + self.b3
+        return self.softmax(out)
+
+# -----------------------------
 # Load chatbot files
 # -----------------------------
 with open(os.path.join(BASE_DIR, "intent.json"), encoding="utf-8") as f:
     intents = json.load(f)
 
-model = load_model(os.path.join(BASE_DIR, "model.h5"))
+# REPLACED: model = load_model(...)
+model = NumpyModel(os.path.join(BASE_DIR, "model_weights.npz"))
+
 words = pickle.load(open(os.path.join(BASE_DIR, "words.pkl"), "rb"))
 classes = pickle.load(open(os.path.join(BASE_DIR, "classes.pkl"), "rb"))
 
@@ -69,7 +103,9 @@ def bag_of_words(sentence):
 
 def predict_class(sentence):
     bow = bag_of_words(sentence)
-    res = model.predict(np.array([bow]), verbose=0)[0]
+    
+    # REPLACED: res = model.predict(np.array([bow]), verbose=0)[0]
+    res = model.predict(bow) # Direct numpy call
 
     ERROR_THRESHOLD = 0.25
     results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
@@ -124,6 +160,7 @@ def chat():
     except Exception as e:
         print(f"Error: {e}", flush=True)
         return jsonify({"reply": f"Internal Error: {str(e)}"}), 200
+
 
 # -----------------------------
 # Run app

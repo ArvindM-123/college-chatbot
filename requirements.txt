@@ -2,4 +2,3 @@ Flask
 gunicorn
 nltk
 numpy
-tensorflow-cpu
