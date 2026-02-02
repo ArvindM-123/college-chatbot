@@ -31,6 +31,7 @@ nltk.data.path.append(NLTK_DATA_DIR)
 
 # Download only once at startup
 nltk.download("punkt", download_dir=NLTK_DATA_DIR)
+nltk.download("punkt_tab", download_dir=NLTK_DATA_DIR)
 nltk.download("wordnet", download_dir=NLTK_DATA_DIR)
 
 lemmatizer = WordNetLemmatizer()
